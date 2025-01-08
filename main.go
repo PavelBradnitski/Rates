@@ -2,49 +2,73 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
-// Rate - структура для хранения данных, получаемых из API
 type Rate struct {
-	Cur_ID           int     `json:"Cur_ID"`
-	Date             string  `json:"Date"`
-	Cur_Abbreviation string  `json:"Cur_Abbreviation"`
-	Cur_Scale        int     `json:"Cur_Scale"`
-	Cur_OfficialRate float64 `json:"Cur_OfficialRate"`
+	CurID           int     `json:"Cur_ID"`
+	Date            string  `json:"Date"`
+	CurAbbreviation string  `json:"Cur_Abbreviation"`
+	CurScale        int     `json:"Cur_Scale"`
+	CurOfficialRate float64 `json:"Cur_OfficialRate"`
 }
 
-func main() {
-	// Задайте URL вашего API
-	apiURL := "https://api.nbrb.by/exrates/rates?periodicity=0" // Пример API
+var db *sql.DB
 
-	fetchAndSaveData(apiURL)
+func main() {
+	dsn := "user_for_migrate:Rn33_io17@tcp(127.0.0.1:3306)/rates_db"
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Fatal("Failed to connect to database:", err)
+	}
+	defer db.Close()
+	apiURL := "https://api.nbrb.by/exrates/rates?periodicity=0"
+
+	Rates, err := fetchRates(apiURL)
+	if err != nil {
+		log.Fatal("Failed to fetch rates:", err)
+	}
+	// TODO: к addRatesToDB нужно добавить ресивер db
+	//err = addRatesToDB(Rates)
+	query := `INSERT INTO rates (cur_id, date, cur_abbreviation, cur_scale, cur_official_rate) VALUES (?, ?, ?, ?, ?)`
+	for _, rate := range Rates {
+		parsedDate, _ := time.Parse("2006-01-02T15:04:05", rate.Date)
+		_, err := db.Exec(query, rate.CurID, parsedDate.Format("2006-01-02"), rate.CurAbbreviation, rate.CurScale, rate.CurOfficialRate)
+		if err != nil {
+			log.Fatal("Failed to insert rate:", err)
+		}
+	}
+	if err != nil {
+		log.Fatal("Failed to insert rates into database:", err)
+	}
+
+	http.HandleFunc("/rates", getAllRatesHandler)
+	http.HandleFunc("/rate", getRateByDateHandler)
+
+	log.Println("Starting server on :8080...")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 // fetchAndSaveData получает данные из API и сохраняет их в файл
-func fetchAndSaveData(apiURL string) {
-	log.Println("Starting data fetching...")
+func fetchRates(apiURL string) ([]Rate, error) {
+	log.Println("Starting Rates fetching...")
 
 	// Выполняем запрос к API
 	data, err := fetchDataFromAPI(apiURL)
 	if err != nil {
 		log.Printf("Error fetching data: %v\n", err)
-		return
+		return nil, err
 	}
-
-	// Сохраняем данные
-	err = saveDataToFile(data, "data.json")
-	if err != nil {
-		log.Printf("Error saving data: %v\n", err)
-		return
-	}
-	log.Println("Data fetched and saved successfully")
+	log.Println("Rates fetched successfully")
+	return data, nil
 }
 
 // fetchDataFromAPI получает данные из API
@@ -80,19 +104,71 @@ func fetchDataFromAPI(apiURL string) ([]Rate, error) {
 	return result, nil
 }
 
-// saveDataToFile сохраняет данные в JSON файл
-func saveDataToFile(data []Rate, fileName string) error {
-	file, err := os.Create(fileName)
+// func addRatesToDB(rates []Rate) error {
+
+// }
+
+func getAllRatesHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Only GET method is allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	rows, err := db.Query("SELECT cur_id, date, cur_abbreviation, cur_scale, cur_official_rate FROM rates")
 	if err != nil {
-		return fmt.Errorf("error creating file: %w", err)
+		http.Error(w, "Failed to fetch data", http.StatusInternalServerError)
+		log.Println("Query error:", err)
+		return
 	}
-	defer file.Close()
+	defer rows.Close()
 
-	encoder := json.NewEncoder(file)
-	encoder.SetIndent("", "  ")
-	if err := encoder.Encode(data); err != nil {
-		return fmt.Errorf("error encoding json to file: %w", err)
+	var rates []Rate
+	for rows.Next() {
+		var rate Rate
+		if err := rows.Scan(&rate.CurID, &rate.Date, &rate.CurAbbreviation, &rate.CurScale, &rate.CurOfficialRate); err != nil {
+			http.Error(w, "Failed to scan data", http.StatusInternalServerError)
+			log.Println("Scan error:", err)
+			return
+		}
+		rates = append(rates, rate)
 	}
 
-	return nil
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(rates)
+}
+
+func getRateByDateHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Only GET method is allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	date := r.URL.Query().Get("date")
+	if date == "" {
+		http.Error(w, "Date parameter is required", http.StatusBadRequest)
+		return
+	}
+
+	// Validate date format
+	if _, err := time.Parse("2006-01-02", date); err != nil {
+		http.Error(w, "Invalid date format, use YYYY-MM-DD", http.StatusBadRequest)
+		return
+	}
+
+	query := `SELECT cur_id, date, cur_abbreviation, cur_scale, cur_official_rate FROM rates WHERE date = ?`
+	row := db.QueryRow(query, date)
+
+	var rate Rate
+	if err := row.Scan(&rate.CurID, &rate.Date, &rate.CurAbbreviation, &rate.CurScale, &rate.CurOfficialRate); err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "No rate found for the given date", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "Failed to fetch data", http.StatusInternalServerError)
+		log.Println("QueryRow error:", err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(rate)
 }

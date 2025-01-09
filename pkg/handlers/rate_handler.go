@@ -18,10 +18,10 @@ func NewRateHandler(service *services.RateService) *RateHandler {
 }
 
 func (h *RateHandler) RegisterRoutes(router *gin.Engine) {
-	songGroup := router.Group("/rate")
+	rateGroup := router.Group("/rate")
 	{
-		songGroup.GET("/", h.GetAllRates)
-		songGroup.GET("/:date", h.GetRateByDate)
+		rateGroup.GET("/", h.GetAllRates)
+		rateGroup.GET("/:date", h.GetRateByDate)
 	}
 }
 

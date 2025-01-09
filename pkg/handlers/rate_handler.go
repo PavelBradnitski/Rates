@@ -30,7 +30,10 @@ func (h *RateHandler) GetAllRates(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve rates"})
 		return
 	}
-
+	if len(rates) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Rates not found"})
+		return
+	}
 	c.JSON(http.StatusOK, rates)
 }
 
@@ -39,9 +42,12 @@ func (h *RateHandler) GetRateByDate(c *gin.Context) {
 
 	foundRate, err := h.service.GetRateByDate(c, date)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Rate not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Rates not found"})
 		return
 	}
-
+	if len(foundRate) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Rates not found"})
+		return
+	}
 	c.JSON(http.StatusOK, foundRate)
 }

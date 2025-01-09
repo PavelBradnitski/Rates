@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/PavelBradnitski/Rates/pkg/services"
-
 	"github.com/gin-gonic/gin"
 )
 

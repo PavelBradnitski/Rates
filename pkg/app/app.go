@@ -30,8 +30,6 @@ func Run() {
 	}
 	defer db.Close()
 	rateRepo := repositories.NewRateRepository(db)
-	// Получение курсов из внешнего API
-	//fetchAndSave(rateRepo)
 
 	// Создание HTTP сервера
 	rateService := services.NewRateService(rateRepo)

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/PavelBradnitski/Rates/pkg/services"
 
@@ -39,7 +40,11 @@ func (h *RateHandler) GetAllRates(c *gin.Context) {
 
 func (h *RateHandler) GetRateByDate(c *gin.Context) {
 	date := c.Param("date")
-
+	_, err := time.Parse("2006-01-02", date)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "incorrect date format. Expect YYYY-MM-DD"})
+		return
+	}
 	foundRate, err := h.service.GetRateByDate(c, date)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Rates not found"})

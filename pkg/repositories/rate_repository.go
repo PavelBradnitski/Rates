@@ -11,6 +11,10 @@ import (
 type RateRepository struct {
 	db *sql.DB
 }
+type RateRepositoryInterface interface {
+	GetAllRates(ctx context.Context) ([]models.Rate, error)
+	GetRateByDate(ctx context.Context, date string) ([]models.Rate, error)
+}
 
 func NewRateRepository(db *sql.DB) *RateRepository {
 	return &RateRepository{db: db}

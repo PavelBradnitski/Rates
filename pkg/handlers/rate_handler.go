@@ -9,7 +9,7 @@ import (
 )
 
 type RateHandler struct {
-	service *services.RateService
+	service services.RateServiceInterface
 }
 
 func NewRateHandler(service *services.RateService) *RateHandler {

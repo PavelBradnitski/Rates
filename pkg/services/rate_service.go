@@ -11,6 +11,11 @@ type RateService struct {
 	repo *repositories.RateRepository
 }
 
+type RateServiceInterface interface {
+	GetAllRates(ctx context.Context) ([]models.Rate, error)
+	GetRateByDate(ctx context.Context, date string) ([]models.Rate, error)
+}
+
 func NewRateService(repo *repositories.RateRepository) *RateService {
 	return &RateService{repo: repo}
 }

@@ -18,12 +18,6 @@ const apiURL = "https://api.nbrb.by/exrates/rates?periodicity=0"
 
 // Запись полученных курсов в БД
 func FetchAndSave(db *sql.DB) {
-	// dsn := "user_for_migrate:test@tcp(mysql:3306)/rates_db"
-	// db, err := sql.Open("mysql", dsn)
-	// if err != nil {
-	// 	log.Fatal("Failed to connect to database:", err)
-	// }
-	// defer db.Close()
 	Rates, err := fetchRates(apiURL)
 	if err != nil {
 		// Не останавливаем API

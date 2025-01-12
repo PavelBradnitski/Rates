@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.8'  # Можно использовать 3.4 и выше
 services:
   api:
     build: .
@@ -7,8 +7,7 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    # Не решение для продакшен, лучше использовать .env файл 
-    environment:
+    environment: # Не решение для продакшена, лучше использовать .env файл 
       - DB_HOST=mysql
       - DB_PORT=3306
       - DB_USER=user_for_migrate

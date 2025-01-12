@@ -24,10 +24,9 @@ func Run() {
 	dbHost := os.Getenv("DB_HOST")
 	dbPort := os.Getenv("DB_PORT")
 	dbName := os.Getenv("DB_NAME")
+	// Подключение к БД
 	db, err := repositories.ConnectToDB(dbUser, dbPassword, dbHost, dbPort, dbName)
-	if err != nil {
-		log.Fatal("Failed to ")
-	}
+	defer db.Close()
 	// Запуск миграции
 	connectionString := fmt.Sprintf("mysql://%s:%s@tcp(%s:%s)/%s", dbUser, dbPassword, dbHost, dbPort, dbName)
 	m, err := migrate.New(

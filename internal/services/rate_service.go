@@ -8,7 +8,7 @@ import (
 )
 
 type RateService struct {
-	repo *repositories.RateRepository
+	repo repositories.RateRepositoryInterface
 }
 
 type RateServiceInterface interface {
@@ -16,7 +16,7 @@ type RateServiceInterface interface {
 	GetRateByDate(ctx context.Context, date string) ([]models.Rate, error)
 }
 
-func NewRateService(repo *repositories.RateRepository) *RateService {
+func NewRateService(repo repositories.RateRepositoryInterface) *RateService {
 	return &RateService{repo: repo}
 }
 

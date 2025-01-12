@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func ConnectToDB(dbUser, dbPassword, dbHost, dbPort, dbName string) (*sql.DB, error) {
@@ -12,8 +14,6 @@ func ConnectToDB(dbUser, dbPassword, dbHost, dbPort, dbName string) (*sql.DB, er
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
-	defer db.Close()
-
 	err = db.Ping()
 	if err != nil {
 		log.Fatalf("Error connecting database: %v\n", err)

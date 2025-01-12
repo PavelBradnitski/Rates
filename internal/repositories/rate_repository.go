@@ -12,11 +12,12 @@ type RateRepository struct {
 	db *sql.DB
 }
 type RateRepositoryInterface interface {
+	AddRates(ctx context.Context, rates []models.Rate) error
 	GetAllRates(ctx context.Context) ([]models.Rate, error)
 	GetRateByDate(ctx context.Context, date string) ([]models.Rate, error)
 }
 
-func NewRateRepository(db *sql.DB) *RateRepository {
+func NewRateRepository(db *sql.DB) RateRepositoryInterface {
 	return &RateRepository{db: db}
 }
 

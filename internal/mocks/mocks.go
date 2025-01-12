@@ -29,6 +29,10 @@ type MockRateRepository struct {
 	mock.Mock
 }
 
+func (m *MockRateRepository) AddRates(ctx context.Context, rates []models.Rate) error {
+	args := m.Called(ctx)
+	return args.Error(1)
+}
 func (m *MockRateRepository) GetAllRates(ctx context.Context) ([]models.Rate, error) {
 	args := m.Called(ctx)
 	return args.Get(0).([]models.Rate), args.Error(1)

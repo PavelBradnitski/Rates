@@ -11,7 +11,7 @@ services:
       - DB_HOST=mysql
       - DB_PORT=3306
       - DB_USER=user_for_migrate
-      - DB_PASSWORD=Rn33_io17
+      - DB_PASSWORD=test
       - DB_NAME=rates_db  
     volumes:
       - ./db/migrations:/Rates/db/migrations
@@ -19,10 +19,10 @@ services:
   mysql:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: Rn33_io17
+      MYSQL_ROOT_PASSWORD: test
       MYSQL_DATABASE: rates_db
       MYSQL_USER: user_for_migrate
-      MYSQL_PASSWORD: Rn33_io17
+      MYSQL_PASSWORD: test
     ports:
       - "3307:3306"
     healthcheck:

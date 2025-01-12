@@ -55,10 +55,13 @@ func Run() {
 	scheduleTime := time.Date(now.Year(), now.Month(), now.Day(), 3, 0, 0, 0, time.Local)
 	// Обработка случая запуска приложения раньше 03:00
 	if now.After(scheduleTime) {
-		go scheduler.FetchAndSave()
+		go scheduler.FetchAndSave(db)
 	}
 	c := cron.New()
-	_, err = c.AddFunc("0 3 * * *", scheduler.FetchAndSave)
+	_, err = c.AddFunc("0 3 * * *", func() {
+		// Оборачиваем функцию с параметрами
+		scheduler.FetchAndSave(db)
+	})
 	if err != nil {
 		log.Fatal("Failed scheduled query:", err)
 	}

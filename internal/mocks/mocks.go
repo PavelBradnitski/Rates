@@ -3,9 +3,9 @@ package mocks
 import (
 	"context"
 
-	"github.com/PavelBradnitski/Rates/pkg/models"
-	"github.com/PavelBradnitski/Rates/pkg/repositories"
-	"github.com/PavelBradnitski/Rates/pkg/services"
+	"github.com/PavelBradnitski/Rates/internal/models"
+	"github.com/PavelBradnitski/Rates/internal/repositories"
+	"github.com/PavelBradnitski/Rates/internal/services"
 	"github.com/stretchr/testify/mock"
 )
 

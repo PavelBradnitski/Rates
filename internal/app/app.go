@@ -11,10 +11,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/PavelBradnitski/Rates/pkg/handlers"
-	"github.com/PavelBradnitski/Rates/pkg/models"
-	"github.com/PavelBradnitski/Rates/pkg/repositories"
-	"github.com/PavelBradnitski/Rates/pkg/services"
+	"github.com/PavelBradnitski/Rates/internal/handlers"
+	"github.com/PavelBradnitski/Rates/internal/models"
+	"github.com/PavelBradnitski/Rates/internal/repositories"
+	"github.com/PavelBradnitski/Rates/internal/services"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang-migrate/migrate/v4"
@@ -49,6 +49,7 @@ func Run() {
 		"file:///Rates/db/migrations",
 		connectionString,
 	)
+	defer m.Close()
 	if err != nil {
 		log.Fatalf("Failed to initialize migrations: %v", err)
 	}
@@ -67,8 +68,9 @@ func Run() {
 	rateHandler.RegisterRoutes(router)
 	go router.Run(":8080")
 	now := time.Now()
-	sceduleTime := time.Date(now.Year(), now.Month(), now.Day(), 3, 0, 0, 0, time.Local)
-	if now.After(sceduleTime) {
+	scheduleTime := time.Date(now.Year(), now.Month(), now.Day(), 3, 0, 0, 0, time.Local)
+	// Обработка случая запуска приложения раньше 03:00
+	if now.After(scheduleTime) {
 		go fetchAndSave()
 	}
 	c := cron.New()
@@ -83,7 +85,6 @@ func Run() {
 
 // Запись полученных курсов в БД
 func fetchAndSave() {
-	//dsn := "user_for_migrate:Rn33_io17@tcp(mysql:3306)/rates_db"
 	dsn := "user_for_migrate:test@tcp(mysql:3306)/rates_db"
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
@@ -92,13 +93,15 @@ func fetchAndSave() {
 	defer db.Close()
 	Rates, err := fetchRates(apiURL)
 	if err != nil {
-		log.Fatal("Failed to fetch rates:", err)
-	}
-	ctx := context.Background()
-	rateRepo := repositories.NewRateRepository(db)
-	err = rateRepo.AddRates(ctx, Rates)
-	if err != nil {
-		log.Fatal("Failed to add rates:", err)
+		// Не останавливаем API
+		log.Printf("Failed to fetch rates:", err)
+	} else {
+		ctx := context.Background()
+		rateRepo := repositories.NewRateRepository(db)
+		err = rateRepo.AddRates(ctx, Rates)
+		if err != nil {
+			log.Fatal("Failed to add rates:", err)
+		}
 	}
 }
 

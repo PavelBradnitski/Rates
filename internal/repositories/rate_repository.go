@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/PavelBradnitski/Rates/pkg/models"
+	"github.com/PavelBradnitski/Rates/internal/models"
 )
 
 type RateRepository struct {

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/PavelBradnitski/Rates/pkg/app"
+	"github.com/PavelBradnitski/Rates/internal/app"
 )
 
 func main() {

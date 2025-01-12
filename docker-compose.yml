@@ -1,4 +1,4 @@
-version: '3.8'  # Можно использовать 3.4 и выше
+version: '3.8'
 services:
   api:
     build: .
@@ -7,6 +7,7 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+    # Не решение для продакшен, лучше использовать .env файл 
     environment:
       - DB_HOST=mysql
       - DB_PORT=3306

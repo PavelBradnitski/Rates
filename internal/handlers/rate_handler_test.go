@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/PavelBradnitski/Rates/pkg/mocks"
-	"github.com/PavelBradnitski/Rates/pkg/models"
+	"github.com/PavelBradnitski/Rates/internal/mocks"
+	"github.com/PavelBradnitski/Rates/internal/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"

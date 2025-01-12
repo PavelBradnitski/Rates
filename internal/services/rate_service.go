@@ -3,8 +3,8 @@ package services
 import (
 	"context"
 
-	"github.com/PavelBradnitski/Rates/pkg/models"
-	"github.com/PavelBradnitski/Rates/pkg/repositories"
+	"github.com/PavelBradnitski/Rates/internal/models"
+	"github.com/PavelBradnitski/Rates/internal/repositories"
 )
 
 type RateService struct {

@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/PavelBradnitski/Rates/pkg/services"
+	"github.com/PavelBradnitski/Rates/internal/services"
 	"github.com/gin-gonic/gin"
 )
 

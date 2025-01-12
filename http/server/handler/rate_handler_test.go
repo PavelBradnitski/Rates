@@ -1,11 +1,11 @@
-package handlers
+package handler
 
 import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/PavelBradnitski/Rates/internal/mocks"
+	"github.com/PavelBradnitski/Rates/http/server/handler/mocks"
 	"github.com/PavelBradnitski/Rates/internal/models"
 
 	"github.com/gin-gonic/gin"

@@ -1,4 +1,4 @@
-package handlers
+package handler
 
 import (
 	"net/http"
@@ -12,9 +12,6 @@ type RateHandler struct {
 	service services.RateServiceInterface
 }
 
-//	func NewRateHandler(service *services.RateService) *RateHandler {
-//		return &RateHandler{service: service}
-//	}
 func NewRateHandler(service services.RateServiceInterface) *RateHandler {
 	return &RateHandler{service: service}
 }
@@ -29,7 +26,7 @@ func (h *RateHandler) RegisterRoutes(router *gin.Engine) {
 func (h *RateHandler) GetAllRates(c *gin.Context) {
 	rates, err := h.service.GetAllRates(c)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve rates"})
 		return
 	}
 	if len(rates) == 0 {

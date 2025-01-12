@@ -7,7 +7,7 @@ import (
 	"time"
 
 	scheduler "github.com/PavelBradnitski/Rates/http/client"
-	"github.com/PavelBradnitski/Rates/http/server/handlers"
+	"github.com/PavelBradnitski/Rates/http/server/handler"
 	"github.com/PavelBradnitski/Rates/internal/repositories"
 	"github.com/PavelBradnitski/Rates/internal/services"
 	"github.com/gin-gonic/gin"
@@ -47,7 +47,7 @@ func Run() {
 
 	// Создание HTTP сервера
 	rateService := services.NewRateService(rateRepo)
-	rateHandler := handlers.NewRateHandler(rateService)
+	rateHandler := handler.NewRateHandler(rateService)
 	router := gin.Default()
 	rateHandler.RegisterRoutes(router)
 	go router.Run(":8080")

@@ -16,19 +16,42 @@ import (
 	"github.com/PavelBradnitski/Rates/pkg/services"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/mysql"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/robfig/cron/v3"
 )
 
 const apiURL = "https://api.nbrb.by/exrates/rates?periodicity=0"
 
 func Run() {
-	// Подключение к MySql
-	dsn := "user_for_migrate:Rn33_io17@tcp(127.0.0.1:3306)/rates_db"
+	// Подключение к БД
+	dsn := "user_for_migrate:Rn33_io17@tcp(mysql:3306)/rates_db"
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
 	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("Error connecting database: %v\n", err)
+	}
+	// Запуск миграции
+	connectionString := "mysql://user_for_migrate:Rn33_io17@tcp(mysql:3306)/rates_db"
+	m, err := migrate.New(
+		"file:///Rates/db/migrations",
+		connectionString,
+	)
+	if err != nil {
+		log.Fatalf("Failed to initialize migrations: %v", err)
+	}
+
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatalf("Failed to run migrations: %v", err)
+	}
+
+	log.Println("Migrations applied successfully!")
 	rateRepo := repositories.NewRateRepository(db)
 
 	// Создание HTTP сервера
@@ -51,8 +74,10 @@ func Run() {
 	// блокировка потока
 	select {}
 }
+
+// Запись полученных курсов в БД
 func fetchAndSave() {
-	dsn := "user_for_migrate:Rn33_io17@tcp(127.0.0.1:3306)/rates_db"
+	dsn := "user_for_migrate:Rn33_io17@tcp(mysql:3306)/rates_db"
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)

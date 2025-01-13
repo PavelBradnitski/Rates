@@ -17,6 +17,7 @@ https://api.nbrb.by/exrates/rates?periodicity=0.
 * git clone git@github.com:PavelBradnitski/Rates.git
 * cd Rates
 2. Настроить Docker
+  
 Проект использует Docker для развертывания всех зависимостей (например, MySQL).
 
   Запустите контейнеры с помощью Docker Compose:
@@ -37,6 +38,28 @@ URL:
 
   GET http://localhost:8080/rate
   
+Пример ответа на запрос всех курсов валют:
+```JSON
+[
+  {
+    "Cur_ID": 1,
+    "Date": "2025-01-11",
+    "Cur_Abbreviation": "USD",
+    "Cur_Scale": 1,
+    "Cur_Name": "Доллар США",
+    "Cur_OfficialRate": 3.5
+  },
+  {
+    "Cur_ID": 2,
+    "Date": "2025-01-12",
+    "Cur_Abbreviation": "USD",
+    "Cur_Scale": 1,
+    "Cur_Name": "Доллар США",
+    "Cur_OfficialRate": 3.55
+  }
+]
+```
+  
   2. Получение записей за выбранный день
 
   Метод: GET
@@ -44,11 +67,12 @@ URL:
   URL: 
   http://localhost:8080/rate/{date}
 
-  Описание: Возвращает записи за указанный день. Дата должна быть в формате YYYY-MM-DD.
+  Описание: Возвращает записи за указанную дату. Дата должна быть в формате YYYY-MM-DD.
 
-  Пример запроса:
+Пример запроса:
 
 GET http://localhost:8080/rate/2025-01-12
+
 Пример ответа:
 ```JSON
 [
@@ -58,36 +82,15 @@ GET http://localhost:8080/rate/2025-01-12
     "Cur_Abbreviation": "USD",
     "Cur_Scale": 1,
     "Cur_Name": "Доллар США",
-    "Cur_OfficialRate": 2.5
+    "Cur_OfficialRate": 3.5
   },
   ...
 ]
 ```
-Формат ответа
+### Формат ответа
 Ответы на запросы будут представлены в формате JSON.
 
-Пример ответа на запрос всех курсов валют:
-```JSON
-[
-  {
-    "Cur_ID": 1,
-    "Date": "2025-01-12",
-    "Cur_Abbreviation": "USD",
-    "Cur_Scale": 1,
-    "Cur_Name": "Доллар США",
-    "Cur_OfficialRate": 2.5
-  },
-  {
-    "Cur_ID": 2,
-    "Date": "2025-01-12",
-    "Cur_Abbreviation": "EUR",
-    "Cur_Scale": 1,
-    "Cur_Name": "Евро",
-    "Cur_OfficialRate": 3.0
-  }
-]
-```
 ### Примечания
-Проект автоматически обновляет данные о курсах валют один раз в сутки в 03:00.
+Проект автоматически собирает данные о курсах валют один раз в сутки в 03:00.
 
 Сервер работает по умолчанию на порту 8080.
